@@ -19,7 +19,7 @@ case class Node[K](value:K,var left:Option[Node[K]],var right:Option[Node[K]],va
 abstract class BinaryTree[K](implicit ord:K=>Ordered[K]){
   def add(value:K)
   def remove(value:K):Boolean
-  def depth:Int
+  def height:Int
   def size:Int
 }
 
@@ -149,7 +149,7 @@ class Tree[K](implicit ord:K=>Ordered[K]) extends BinaryTree[K]{
     inorder.mkString(" :: ")
   }
 
-  override def depth:Int= depth(root)
+  override def height:Int= depth(root)
 
   def depth(node:Option[Node[K]]):Int = {
     node match {
@@ -168,7 +168,7 @@ object App{
     val tree = new Tree[Int]()
     (1 until 100).foreach(_=>tree.add(generator.nextInt(100)))
     println(tree.size)
-    println(tree.depth)
+    println(tree.height)
     println(tree)
     println(tree.remove(10))
     println(tree.remove(5))
