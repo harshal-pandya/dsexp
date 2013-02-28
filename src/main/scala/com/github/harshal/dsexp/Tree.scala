@@ -1,18 +1,27 @@
-package com.github.harshal.dsexp.tree
+package com.github.harshal.dsexp
 
-import collection.mutable
-import collection.mutable.ArrayBuffer
 import util.Random
+import collection.mutable.ArrayBuffer
+
 
 /**
  * @author harshal
- * @date: 2/24/13
+ * @date: 2/27/13
  */
 
 case class Node[K](value:K,var left:Option[Node[K]],var right:Option[Node[K]],var parent:Option[Node[K]])(implicit ord:K=>Ordered[K]){
   def hasLeft:Boolean = if (left!=None) true else false
   def hasRight:Boolean = if (right!=None) true else false
   def hasParent:Boolean = if (parent!=None) true else false
+  def isLeaf:Boolean = !hasLeft && !hasRight
+  def isParent(n:Node[K]):Boolean = {
+    if (!isLeaf) {
+      val l = if (hasLeft) left.get else null
+      val r = if (hasRight) right.get else null
+      l==n || r==n
+    }
+    else false
+  }
 }
 
 abstract class BinaryTree[K](implicit ord:K=>Ordered[K]){
@@ -124,7 +133,7 @@ class Tree[K](implicit ord:K=>Ordered[K]) extends BinaryTree[K]{
 
   def inorder:Seq[K]={
     val nodes = new ArrayBuffer[K]()
-    val stack = new mutable.Stack[Node[K]]()
+    val stack = new Stack[Node[K]]()
     if (size!=0){
       var cur = root
       while(!stack.isEmpty || cur!=None){
@@ -144,8 +153,68 @@ class Tree[K](implicit ord:K=>Ordered[K]) extends BinaryTree[K]{
     nodes
   }
 
+  def preorder:Seq[K]={
+    val nodes = new ArrayBuffer[K]()
+    val stack = new Stack[Node[K]]()
+    if (size!=0){
+      var cur = root
+      while(!stack.isEmpty || cur!=None){
+        cur match{
+          case Some(node) => {
+            stack.push(node)
+            nodes += node.value
+            cur = node.left
+          }
+          case None=> {
+            val tmp = stack.pop()
+            cur = tmp.right
+          }
+        }
+      }
+    }
+    nodes
+  }
+
+  def postorder:Seq[K]={
+    val nodes = new ArrayBuffer[K]()
+    val stack = new Stack[Node[K]]()
+    if (size!=0){
+      var prev:Option[Node[K]] = None
+      stack.push(root.get)
+      while(!stack.isEmpty){
+        val cur = stack.top
+        prev match{
+          case None=> if (cur.hasLeft) stack.push(cur.left.get) else if (cur.hasRight) stack.push(cur.right.get)
+          case Some(node)=>{
+            if(!cur.isParent(node) && cur.hasLeft) stack.push(cur.left.get)
+            else if (!cur.isParent(node) && cur.hasRight) stack.push(cur.right.get)
+            else if (cur.isParent(node) && cur.hasRight && cur.hasLeft && cur.left.get==node) stack.push(cur.right.get)
+            else {
+              stack.pop()
+              nodes+=cur.value
+            }
+          }
+        }
+        prev=Some(cur)
+      }
+    }
+    nodes
+  }
+
+  def postorder(node:Option[Node[K]]){
+    node match{
+      case None=>
+      case Some(n)=>{
+        postorder(n.left)
+        postorder(n.right)
+        println(n.value)
+      }
+    }
+
+  }
+
   override def toString:String={
-    inorder.mkString(" :: ")
+    postorder.mkString(" : ")
   }
 
   override def height:Int= depth(root)
@@ -158,29 +227,49 @@ class Tree[K](implicit ord:K=>Ordered[K]) extends BinaryTree[K]{
 
   }
 
+  def prettyPrint(node:Option[Node[K]]):String={
+    if (node == None) ""
+    else if(node.get.isLeaf) "\n\\t"+node.get.value.toString
+    else node.get.value.toString+"\n\\t"+prettyPrint(node.get.left)+"\n\\t"+prettyPrint(node.get.right)
+  }
+
+ def bfs{
+   val queue = new Queue[Option[Node[K]]]()
+   queue.enqueue(root)
+   while(!queue.isEmpty){
+     queue.dequeue match {
+       case Some(node)=>{
+         println(node.value)
+         queue.enqueue(node.left)
+         queue.enqueue(node.right)
+       }
+       case None =>
+     }
+   }
+ }
+
   def size = count
 }
+
+
 
 object App{
   def main(args:Array[String]){
     val generator = new Random()
     val tree = new Tree[Int]()
-    (1 until 100).foreach(_=>tree.add(generator.nextInt(100)))
-    println(tree.size)
-    println(tree.height)
+//    (1 until 8).foreach(_=>tree.add(generator.nextInt(100)))
+    tree.add(6)
+    tree.add(3)
+    tree.add(8)
+    tree.add(2)
+    tree.add(4)
+    tree.add(8)
+    tree.add(7)
+    tree.add(9)
+    tree.add(1)
+    tree.add(5)
+    tree.postorder(tree.root)
     println(tree)
-    println(tree.remove(10))
-    println(tree.remove(5))
-    println(tree.size)
-    println(tree)
-    println(tree.remove(1))
-    println(tree.size)
-    println(tree)
-    println(tree.remove(6))
-    println(tree.size)
-    println(tree)
-    println(tree.remove(7))
-    println(tree.size)
-    println(tree)
+    tree.bfs
   }
 }
