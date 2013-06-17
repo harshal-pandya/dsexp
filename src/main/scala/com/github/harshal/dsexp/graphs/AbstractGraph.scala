@@ -26,7 +26,10 @@ abstract class AbstractGraph(val Vertices:Int) {
 
 class Graph(val V:Int) extends AbstractGraph(V) {
   private val adjacencyList = Array.fill(V)(mutable.LinkedList[Int]())
-  override def addEdge(v:Int, w:Int) { adjacencyList(v) :+ w; adjacencyList(w) :+ v }
+  override def addEdge(v:Int, w:Int) {
+    adjacencyList(v) = adjacencyList(v) :+ w
+    adjacencyList(w) = adjacencyList(w) :+ v
+  }
   override def adj(v:Int) = adjacencyList(v)
   override def E = adjacencyList.foldLeft(0)((a,b)=>a+b.size)/2
 }
@@ -38,7 +41,7 @@ abstract class Paths[G<:AbstractGraph](g:G, v:Int) {
 
 class DepthFirstSearchPaths[G<:AbstractGraph](g:G, s:Int) extends Paths(g,s){
   private val marked = Array.fill(g.Vertices)(false)
-  private val edgeTo = Array[Int]()
+  private val edgeTo = Array.fill(g.Vertices)(-1)
 
   dfs(g,s)
 
@@ -52,6 +55,7 @@ class DepthFirstSearchPaths[G<:AbstractGraph](g:G, s:Int) extends Paths(g,s){
       path.push(v)
       v = edgeTo(v)
     }
+    path.push(s)
     Some(path)
   }
 
@@ -60,3 +64,4 @@ class DepthFirstSearchPaths[G<:AbstractGraph](g:G, s:Int) extends Paths(g,s){
     for (w <- g.adj(v)) if (!marked(w)) { dfs(g,w); edgeTo(w)=v }
   }
 }
+
