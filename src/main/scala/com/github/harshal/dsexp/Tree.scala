@@ -9,7 +9,7 @@ import collection.mutable.ArrayBuffer
  * @date: 2/27/13
  */
 
-case class Node[K](value:K,var left:Option[Node[K]],var right:Option[Node[K]],var parent:Option[Node[K]])(implicit ord:K=>Ordered[K]){
+case class Node[K](value:K,var left:Option[Node[K]],var right:Option[Node[K]],var parent:Option[Node[K]]){
   def hasLeft:Boolean = if (left!=None) true else false
   def hasRight:Boolean = if (right!=None) true else false
   def hasParent:Boolean = if (parent!=None) true else false
@@ -24,7 +24,7 @@ case class Node[K](value:K,var left:Option[Node[K]],var right:Option[Node[K]],va
   }
 }
 
-abstract class BinaryTree[K](implicit ord:K=>Ordered[K]){
+abstract class BinaryTree[K]{
   def add(value:K)
   def remove(value:K):Boolean
   def height:Int
