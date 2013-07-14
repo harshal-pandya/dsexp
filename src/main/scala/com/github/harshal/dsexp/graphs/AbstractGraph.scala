@@ -3,6 +3,7 @@ package com.github.harshal.dsexp.graphs
 import java.io.InputStream
 import collection._
 import annotation.tailrec
+import scala.Some
 
 /**
  * @author harshal
@@ -131,6 +132,10 @@ class EdgeWeightedGraph(val V:Int) {
 }
 
 class MST(g : EdgeWeightedGraph) {
+
+  private val mst = mutable.Queue[Edge]()
+
+  val pq = new mutable.PriorityQueue[Edge]()
 
   def edges: Iterable[Edge] = Nil
 
