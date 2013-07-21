@@ -54,6 +54,39 @@ public class Questions {
      }
 
     /**
+     * Find all permutations of letters in a string
+     */
+    public static void printAllPermutations(String s){
+        String[] ret = permute(s);
+        for(int i = 0; i<ret.length; i++){
+            System.out.println(ret[i]);
+        }
+    }
+    private static String[] permute(String s){
+        if(s.length() == 1) {
+            String[] arr = {s};
+            return arr;
+        }
+        else {
+            String[] arr = new String[com.github.harshal.dsexp.utils.Math.factorial(s.length())];
+            int k = 0;
+            for(int i=0; i<s.length(); i++){
+                StringBuilder sb = new StringBuilder();
+                for(int j=0; j<s.length(); j++){
+                    if(i!=j){
+                        sb.append(s.charAt(j));
+                    }
+                }
+                String[] ret = permute(sb.toString());
+                for(int j=0; j<ret.length; j++){
+                    arr[k++] = s.charAt(i)+ret[j];
+                }
+            }
+            return arr;
+        }
+    }
+
+    /**
      * Given an arbitrarily connected graph, explain how to ascertain the reachability of a given node.
      */
 
@@ -98,15 +131,17 @@ public class Questions {
     }
 
     public static void main(String[] args){
-        long t = System.currentTimeMillis();
-        Questions.expBySquaring(3,Integer.MAX_VALUE);
-        System.out.println(System.currentTimeMillis()-t);
-        t=System.currentTimeMillis();
-        int x = 3;
-        for(int i = 0; i<Integer.MAX_VALUE; i++){
-            x*=x;
-        }
-        System.out.println(System.currentTimeMillis()-t);
-        findNodesForSum(35);
+//        long t = System.currentTimeMillis();
+//        Questions.expBySquaring(3,Integer.MAX_VALUE);
+//        System.out.println(System.currentTimeMillis()-t);
+//        t=System.currentTimeMillis();
+//        int x = 3;
+//        for(int i = 0; i<Integer.MAX_VALUE; i++){
+//            x*=x;
+//        }
+//        System.out.println(System.currentTimeMillis()-t);
+//        findNodesForSum(35);
+        printAllPermutations("abcdef");
+
     }
 }
